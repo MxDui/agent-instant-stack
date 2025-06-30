@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  dcsandbox:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dcsandbox-app
+    restart: unless-stopped
+    ports:
+      - "${MCP_PORT:-3000}:3000"
+    volumes:
+      # Docker socket for sandbox management
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Persistent data storage
+      - dcsandbox-data:/app/data
+      - dcsandbox-logs:/app/logs
+      # Configuration files
+      - ./config:/app/config:ro
+    environment:
+      - NODE_ENV=production
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - MCP_PORT=${MCP_PORT:-3000}
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - DATA_DIR=/app/data
+      - LOG_DIR=/app/logs
+      - CONFIG_DIR=/app/config
+    networks:
+      - dcsandbox-network
+    depends_on:
+      - redis
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  redis:
+    image: redis:7-alpine
+    container_name: dcsandbox-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-dcsandbox123}
+    networks:
+      - dcsandbox-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Development service for local development
+  dcsandbox-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: dcsandbox-dev
+    restart: "no"
+    ports:
+      - "${DEV_PORT:-3001}:3000"
+      - "9229:9229"  # Node.js debug port
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
+      - MCP_PORT=3000
+    networks:
+      - dcsandbox-network
+    profiles:
+      - dev
+
+volumes:
+  dcsandbox-data:
+    driver: local
+  dcsandbox-logs:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  dcsandbox-network:
+    driver: bridge

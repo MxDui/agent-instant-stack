@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  dcsandbox-dev:
+    volumes:
+      # Mount source code for live editing
+      - ..:/app:cached
+      # Preserve node_modules
+      - /app/node_modules
+      # Mount Docker socket for container management
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Development-specific volumes
+      - dev-cache:/app/.cache
+      - dev-logs:/app/logs
+    environment:
+      # Development environment variables
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
+      - ENABLE_PROFILING=true
+      - DEBUG_MODE=true
+      # Enable Node.js debugging
+      - NODE_OPTIONS=--inspect=0.0.0.0:9229
+    command: ["npm", "run", "dev"]
+    # Override restart policy for development
+    restart: "no"
+
+volumes:
+  dev-cache:
+    driver: local
+  dev-logs:
+    driver: local

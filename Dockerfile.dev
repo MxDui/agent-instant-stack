@@ -1,0 +1,35 @@
+# Development Dockerfile with hot reload and debugging
+FROM node:18-alpine
+
+# Install Docker CLI and development tools
+RUN apk add --no-cache docker-cli git curl
+
+# Create app user
+RUN addgroup -g 1001 -S appuser && \
+    adduser -S appuser -u 1001 -G appuser
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including dev dependencies)
+RUN npm install
+
+# Create necessary directories
+RUN mkdir -p /app/data /app/logs /app/tmp && \
+    chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+# Expose ports
+EXPOSE 3000 9229
+
+# Set environment variables
+ENV NODE_ENV=development
+ENV LOG_LEVEL=debug
+
+# Start with TypeScript compilation and hot reload
+CMD ["npm", "run", "dev"]

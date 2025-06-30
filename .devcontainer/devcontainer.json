@@ -1,0 +1,84 @@
+{
+  "name": "DCxandbox Development Environment",
+  "dockerComposeFile": ["../docker-compose.yml"],
+  "service": "dcsandbox-dev",
+  "workspaceFolder": "/app",
+  "shutdownAction": "stopCompose",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "moby": true
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
+    },
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "latest"
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "typescript.preferences.quoteStyle": "single",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": true,
+          "source.organizeImports": true
+        },
+        "eslint.validate": ["typescript"],
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "files.exclude": {
+          "**/node_modules": true,
+          "**/dist": true,
+          "**/.git": true
+        },
+        "search.exclude": {
+          "**/node_modules": true,
+          "**/dist": true
+        }
+      },
+      "extensions": [
+        "ms-vscode.vscode-typescript-next",
+        "esbenp.prettier-vscode",
+        "ms-vscode.eslint",
+        "ms-vscode.vscode-json",
+        "redhat.vscode-yaml",
+        "ms-vscode.test-adapter-converter",
+        "hbenl.vscode-test-explorer",
+        "ms-vscode.vscode-docker",
+        "GitHub.copilot",
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-jest"
+      ]
+    }
+  },
+
+  "forwardPorts": [3000, 9229],
+  "portsAttributes": {
+    "3000": {
+      "label": "MCP Proxy Server",
+      "onAutoForward": "notify"
+    },
+    "9229": {
+      "label": "Node.js Debug Port",
+      "onAutoForward": "silent"
+    }
+  },
+
+  "postCreateCommand": "npm install && npm run build",
+  "postStartCommand": "echo 'Development environment ready! Run npm run dev to start.'",
+
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+
+  "containerEnv": {
+    "NODE_ENV": "development",
+    "LOG_LEVEL": "debug"
+  },
+
+  "remoteUser": "appuser",
+  "updateRemoteUserUID": true
+}
