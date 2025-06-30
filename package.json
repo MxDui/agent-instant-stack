@@ -1,0 +1,57 @@
+{
+  "name": "dcsandbox",
+  "version": "1.0.0",
+  "description": "DevContainer Sandbox CLI tool for creating isolated development environments with MCP support",
+  "main": "dist/index.js",
+  "bin": {
+    "dcsandbox": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/cli.ts",
+    "start": "node dist/cli.js",
+    "test": "jest",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "devcontainer",
+    "sandbox",
+    "mcp",
+    "claude-code",
+    "development",
+    "docker"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^11.1.0",
+    "dockerode": "^4.0.2",
+    "fs-extra": "^11.2.0",
+    "inquirer": "^9.2.12",
+    "nanoid": "^5.0.4",
+    "ora": "^8.0.1",
+    "simple-git": "^3.20.0",
+    "ws": "^8.14.2",
+    "yaml": "^2.3.4"
+  },
+  "devDependencies": {
+    "@types/dockerode": "^3.3.41",
+    "@types/fs-extra": "^11.0.4",
+    "@types/inquirer": "^9.0.8",
+    "@types/jest": "^29.5.8",
+    "@types/node": "^20.10.0",
+    "@types/ws": "^8.5.9",
+    "@typescript-eslint/eslint-plugin": "^6.12.0",
+    "@typescript-eslint/parser": "^6.12.0",
+    "eslint": "^8.54.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1",
+    "tsx": "^4.6.0",
+    "typescript": "^5.3.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
